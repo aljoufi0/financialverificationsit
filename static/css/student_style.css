@@ -1,0 +1,25 @@
+.login-body {
+    /* المسار للصورة - تأكد من استخدام static */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/static/img/university_bg.jpg');
+    
+    /* جعل الصورة تغطي كامل الشاشة */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    
+    /* التأكد من ملء الطول الكامل */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    /* جعل البطاقة واضحة فوق الخلفية */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px); /* تأثير زجاجي جميل */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}

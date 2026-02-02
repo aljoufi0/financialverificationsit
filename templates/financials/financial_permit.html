@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="container">
+        <div class="page-title">👤 إصدار وسجل تصاريح الطالب</div>
+
+        <div class="section-box financial-accent">
+            <div class="section-title">🔍 البحث عن الطالب</div>
+            <form method="GET" action="{% url 'financial_permit' %}">
+                <div class="grid-layout">
+                    <div class="form-group" style="grid-column: span 3; position: relative;">
+    <label for='academic_number_search'>الرقم الأكاديمي أو الاسم</label>
+    <input type="text" name="search_query" 
+        placeholder="ابدأ بكتابة اسم الطالب أو رقمه..." 
+        id='academic_number_search' 
+        list="student_list" 
+        autocomplete="off"
+        value="{{ request.GET.search_query }}">
+    
+    <datalist id="student_list"></datalist>
+</div>
+                </div>
+                <button type="submit" class="btn-update" style="background-color: #4a5568; margin-top: 20px;">📄 جلب سجل الطالب</button>
+            </form>
+        </div>
+
+        {% if student %}
+        <div class="section-box" style="border: 1px solid #ffeb99;">
+            <div class="section-title" style="color: #856404;">📝 نموذج تعبئة بيانات التصريح للطالب: {{ student.student_name }}</div>
+            
+            <form method="POST" action="{% url 'financial_permit' %}">
+                {% csrf_token %}
+                <input type="hidden" name="academic_number" value="{{ student.academic_number }}">
+                
+                <div class="grid-layout">
+                    <div class="form-group">
+                        <label for='academic_number'>الرقم الأكاديمي</label>
+                        <input type="text" value="{{ student.academic_number }}" readonly id='academic_number'>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for='end_date'>تاريخ انتهاء التصريح</label>
+                        <input type="date" name="end_date" id='end_date' required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: span 3;">
+                        <label for='stetment'>البيان / ملاحظات إضافية</label>
+                        <input type="text" name="statement" placeholder="أدخل تفاصيل إضافية حول هذا التصريح..." id='stetment'>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-update btn-finance" style="margin-top: 20px;">✅ حفظ وإصدار التصريح لهذا الطالب</button>
+            </form>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">📜 السجل التاريخي لتصاريح الطالب ({{ student.academic_number }})</div>
+            <div style="overflow-y: auto; max-height: 300px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>البيان</th>
+                            <th>تاريخ الإصدار</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    {% for permit in student.permit_set.all %}
+    <tr>
+        <td>{{ permit.statement|default:"---" }}</td>
+        <td>{{ permit.start_date|date:"Y-m-d" }}</td>
+        <td>{{ permit.end_date|date:"Y-m-d" }}</td>
+        <td>
+            <div class="action-buttons">
+                <a href="{% url 'delete_permit' permit.id %}" 
+                    class="btn-delete" 
+                    onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا التصريح نهائياً؟')"
+                    style="background-color: #e53e3e; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9rem;">
+                    🗑️ حذف
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4" style="text-align: center;">لا توجد تصاريح سابقة لهذا الطالب</td>
+    </tr>
+    {% endfor %}
+</tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+ // كود البحث الذكي
+document.getElementById('academic_number_search').addEventListener('input', function(e) {
+    const query = e.target.value;
+    if (query.length < 2) return; // يبدأ بالبحث بعد كتابة حرفين
+
+    // استخدام نفس الـ API الذي أنشأناه في الصفحة السابقة
+    fetch(`/academic/api/student-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const datalist = document.getElementById('student_list');
+            datalist.innerHTML = ''; // مسح النتائج القديمة
+            
+            data.results.forEach(student => {
+                const option = document.createElement('option');
+                // نضع الرقم الأكاديمي كقيمة للاختيار
+                option.value = student.id; 
+                // نضع اسم الطالب كتسمية توضيحية
+                option.label = student.text; 
+                datalist.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching students:', error));
+});
+
+// الكود القديم الخاص بك لإخفاء الرسائل (اتركه كما هو)
+setTimeout(function() {
+    let container = document.querySelector('.messages-container');
+    if (container) {
+        container.style.transition = "opacity 0.6s ease";
+        container.style.opacity = "0";
+        setTimeout(() => container.remove(), 600);
+    }
+}, 5000);
+    </script>
+
+{% endblock %}

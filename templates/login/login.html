@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<header class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+    <div class="logo-section">
+        <span class="logo" style="font-size: 1.4rem; font-weight: bold;">
+            {{ college.university_name|default:"جامعة العلوم الحديثة" }}
+        </span>
+    </div>
+
+    <div class="image-section">
+        {% if college.logo %}
+            <img src="{{ college.logo.url }}" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
+        {% else %}
+            <img src="{% static 'img/3.jpg' %}" alt="Logo" style="height: 60px; width: auto; border-radius: 5px;">
+        {% endif %}
+    </div>
+</header>
+
+<div class="login-body"> 
+    <div class="login-card">
+        <div class="logo-container">
+            <h1 style="color: var(--primary-blue); margin:0; font-size: 22px;">{{ college.university_name|default:"جامعة العلوم الحديثة" }}</h1>
+            <p style="color: var(--text-dark); font-size: 14px; margin-top:5px;">بوابة الخدمات الإلكترونية</p>
+        </div>
+
+        <h2>تسجيل الدخول</h2>
+
+        {% if form.errors %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; text-align: center;">
+                اسم المستخدم أو كلمة المرور غير صحيحة
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="login-form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" name="username" placeholder="أدخل اسم المستخدم" required>
+            </div>
+
+            <div class="login-form-group">
+                <label>كلمة المرور</label>
+                <input type="password" name="password" placeholder="أدخل كلمة المرور" required>
+            </div>
+
+            <button type="submit" class="btn-login">دخول إلى النظام</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* تأكد من إضافة هذه التنسيقات إذا لم تكن موجودة في ملف CSS */
+    .login-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        direction: rtl;
+    }
+    .login-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+    .login-form-group {
+        margin-bottom: 15px;
+        text-align: right;
+    }
+    .login-form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .login-form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .btn-login {
+        width: 100%;
+        padding: 12px;
+        background: #800000; /* لون الجامعة */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,198 @@
+/* 1. استدعاء الخط بجميع الأوزان المطلوبة */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+
+/* 2. تطبيقه على الجسم وجميع عناصر الإدخال لضمان التوحيد */
+* {
+    font-family: 'Cairo', sans-serif !important;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    /* باقي تنسيقاتك */
+}
+
+/* التأكيد على العناصر التي غالباً ما تكسر الخط */
+input, button, select, textarea, optgroup {
+    font-family: 'Cairo', sans-serif;
+}
+        /* --- 1. الإعدادات العامة --- */
+        :root {
+            --ums-maroon: #800000;
+            --ums-gold: #D4AF37;
+            --bg-dark: #1a1c2e;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-dark); /* خلفية داكنة للإطار الخارجي */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        /* --- 2. الإطار الرئيسي (App Frame) --- */
+        .app-frame {
+            background-color: #f4f6f9;
+            width: 95%;
+            max-width: 1200px;
+            margin: 30px auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* شريط النظام العلوي */
+        .super-top-bar {
+            background: linear-gradient(90deg, #4d0000, #800000);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--ums-gold);
+        }
+
+        /* قسم البحث والرقم الأكاديمي */
+        .integrated-header {
+            background: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .number-highlight {
+            font-size: 2rem;
+            color: var(--ums-maroon);
+            font-weight: 900;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 0;
+        }
+
+        .search-input-group input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 0 10px 10px 0;
+            outline: none;
+            width: 200px;
+        }
+
+        .btn-verify {
+            background-color: var(--ums-gold);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px 0 0 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* --- 3. توزيع المحتوى (Grid System) --- */
+        .main-content-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr; /* عمود للبروفايل وعمود للبيانات */
+            gap: 25px;
+            padding: 25px;
+            
+        }
+
+        /* البطاقات الاحترافية */
+        .data-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--ums-maroon);
+        }
+
+        .data-card h3 {
+            margin-top: 0;
+            color: var(--ums-maroon);
+            font-size: 1.1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* --- 4. صورة الطالب وبيانات الهوية --- */
+        .image-status-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            border: 4px solid var(--ums-gold);
+            overflow: hidden;
+            background-color: #eee;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .entry-status-icon {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            background: #27ae60; /* لون أخضر للحالة نشط */
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            font-weight: bold;
+        }
+
+        /* --- 5. شبكة البيانات الأكاديمية (KPIs) --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .kpi-card {
+            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        .kpi-card h4 { color: #888; margin: 0; font-size: 0.8rem; }
+        .kpi-card h1 { color: var(--ums-maroon); margin: 5px 0 0; font-size: 1.1rem; }
+
+        /* الجداول */
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .modern-table th { background: var(--ums-maroon); color: white; padding: 12px; text-align: right; }
+        .modern-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+
+        /* التجاوب مع الجوال */
+        @media (max-width: 850px) {
+            .main-content-grid { grid-template-columns: 1fr; }
+        }

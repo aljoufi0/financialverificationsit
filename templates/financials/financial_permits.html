@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" dir="rtl">
+    <div class="page-title">💵 إصدار وسجل التصاريح العامة</div>
+
+    
+    <div class="section-box financial-accent">
+        <div class="section-title">🔍 البحث وتصفية الطلاب</div>
+        <form method="GET" action="{% url 'financial_permits' %}">
+            <div class="grid-layout" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                
+                <div class="form-group">
+                    <label>الدفعة</label>
+                    <select name="cohort" class="form-control" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">كل الدفعات</option>
+                        {% for c in cohorts %}
+                            <option value="{{ c.id }}" {% if request.GET.cohort == c.id|stringformat:"i" %}selected{% endif %}>{{ c.cohort_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>الكلية</label>
+                    <select name="college" class="form-control" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">كل الكليات</option>
+                        {% for col in colleges %}
+                            <option value="{{ col.id }}" {% if request.GET.college == col.id|stringformat:"i" %}selected{% endif %}>{{ col.college_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>التخصص</label>
+                    <select name="specialization" class="form-control" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">كل التخصصات</option>
+                        {% for s in specializations %}
+                            <option value="{{ s.id }}" {% if request.GET.specialization == s.id|stringformat:"i" %}selected{% endif %}>{{ s.specialization_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>المستوى</label>
+                    <select name="level" class="form-control" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">كل المستويات</option>
+                        {% for l in levels %}
+                            <option value="{{ l.id }}" {% if request.GET.level == l.id|stringformat:"i" %}selected{% endif %}>{{ l.level_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>الفصل</label>
+                    <select name="semester" class="form-control" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">كل الفصول</option>
+                        {% for sem in semesters %}
+                            <option value="{{ sem.id }}" {% if request.GET.semester == sem.id|stringformat:"i" %}selected{% endif %}>{{ sem.semester_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>تصاريح تنتهي قبل أو في:</label>
+                    <input type="date" name="filter_date" value="{{ request.GET.filter_date }}" class="form-control" 
+                    style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                </div>
+            </div>
+            <button type="submit" class="btn-update" style="background-color: #6c757d; margin-top: 15px; cursor: pointer; border: none; padding: 10px 25px; color: white; border-radius: 5px; font-weight: bold;">
+                🔍 عرض القائمة المفلترة
+            </button>
+        </form>
+    </div>
+
+    <form method="POST" action="{% url 'financial_permits' %}" id="bulk-permit-form">
+        {% csrf_token %}
+        <div class="section-box" style="background-color: #fffdf5; border: 1px solid #ffeb99; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="section-title" style="color: #856404; border-bottom: 1px solid #ffeeba; padding-bottom: 10px; margin-bottom: 15px;">✨ إنشاء تصريح مالي جديد للمجموعة المختارة</div>
+            
+            <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <div class="form-group">
+                    <label for='end_date' style="font-weight: bold;">تاريخ الانتهاء <span style="color:red">*</span></label>
+                    <input type="date" name="end_date" id='end_date' required style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+                </div>
+                <div class="form-group">
+                    <label for='statement' style="font-weight: bold;">البيان / ملاحظات إضافية</label>
+                    <input type="text" name="statement" id='statement' placeholder="مثلاً: سماح بدخول الامتحانات..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-update btn-finance" id="submit-btn" style="margin-top: 20px; padding: 12px 30px; font-weight: bold; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                ✅ اعتماد وإصدار لعدد (<span id="selected-count">0</span>) طلاب
+            </button>
+        </div>
+
+        <div class="section-box" style="margin-top: 20px; padding: 0; overflow: hidden;">
+            <div class="section-title" style="padding: 15px;">📋 قائمة الطلاب والنتائج المفلترة</div>
+            <div style="overflow-y: auto; max-height: 500px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead style="background-color: #f8f9fa; position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th style="padding: 15px; border-bottom: 2px solid #dee2e6; width: 50px; text-align: center;">
+                                <input type="checkbox" id="select-all-students" style="transform: scale(1.2);">
+                            </th>
+                            <th style="padding: 15px; border-bottom: 2px solid #dee2e6;">الرقم الأكاديمي</th>
+                            <th style="padding: 15px; border-bottom: 2px solid #dee2e6;">اسم الطالب</th>
+                            <th style="padding: 15px; border-bottom: 2px solid #dee2e6;">التخصص</th>
+                            <th style="padding: 15px; border-bottom: 2px solid #dee2e6;">المستوى</th>
+                            <th>تاريخ انتهاء التصريح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="student-row" style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px; text-align: center;">
+                                <input type="checkbox" name="selected_students" value="{{ student.academic_number }}" class="student-checkbox" style="transform: scale(1.2);">
+                            </td>
+                            <td style="padding: 12px;">{{ student.academic_number }}</td>
+                            <td style="padding: 12px; font-weight: 500;">{{ student.student_name }}</td>
+                            <td style="padding: 12px;"><span class="badge" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px;">{{ student.specialization.specialization_name }}</span></td>
+                            <td style="padding: 12px;">{{ student.level.level_name }}</td>
+                            <td>
+                            {% with student.permit_set.last as last_p %}
+                            {{ last_p.end_date|default:"لا يوجد تصريح" }}
+                            {% endwith %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 50px; color: #888;">⚠️ لا توجد بيانات مطابقة.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // نفس كود الجافاسكريبت السابق الخاص بك للعداد وتحديد الكل
+    const selectAll = document.getElementById('select-all-students');
+    const checkboxes = document.querySelectorAll('.student-checkbox');
+    const countDisplay = document.getElementById('selected-count');
+
+    function updateCount() {
+        const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+        countDisplay.textContent = checkedCount;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.checked = this.checked;
+                cb.closest('tr').style.backgroundColor = this.checked ? "#f0f7ff" : "transparent";
+            });
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            this.closest('tr').style.backgroundColor = this.checked ? "#f0f7ff" : "transparent";
+            updateCount();
+        });
+    });
+    setTimeout(function() {
+    let container = document.querySelector('.messages-container');
+    if (container) {
+        container.style.transition = "opacity 0.6s ease";
+        container.style.opacity = "0";
+        setTimeout(() => container.remove(), 600);
+    }
+}, 5000);
+</script>
+{% endblock %}

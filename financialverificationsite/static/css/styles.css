@@ -1,0 +1,913 @@
+/* 1. استدعاء الخط بجميع الأوزان المطلوبة */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+
+/* 2. تطبيقه على الجسم وجميع عناصر الإدخال لضمان التوحيد */
+* {
+    font-family: 'Cairo', sans-serif !important;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    /* باقي تنسيقاتك */
+}
+
+/* التأكيد على العناصر التي غالباً ما تكسر الخط */
+input, button, select, textarea, optgroup {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* --- 1. الإعدادات العامة والمتغيرات --- */
+:root {
+    --primary-blue: #002b55;   
+    --accent-blue: #0056b3;    
+    --bg-cool-gray: #f4f7f9;   
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --text-dark: #2d3748;
+}
+
+body {
+    margin: 0;
+    padding-top: 90px; 
+    font-family: 'Cairo', sans-serif;
+    background-color: #f4f6f9; /* تغيير خلفية الصفحة للأبيض */
+    direction: rtl;
+    color: var(--text-dark);
+}
+
+/* --- 2. تنسيق الهيدر (Navbar) --- */
+.header {
+    background-color: #800000;
+    color: white;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 2000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.logo-section .logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.user-greeting {
+    font-size: 14px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.nav-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 12px;
+    align-items: center;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.active-link .nav-link {
+    background-color: #600000 !important; /* لون عنابي داكن جداً للتمييز */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link:hover {
+    background-color: #a00000 !important; /* لون عنابي فاتح */
+    transform-group: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- 3. القائمة المنسدلة --- */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background-color: var(--white);
+    min-width: 240px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    z-index: 3000;
+}
+
+.dropdown-content.show {
+    display: block;
+    animation: fadeInSlide 0.3s ease forwards;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-content a {
+    color: var(--text-dark) !important;
+    padding: 14px 20px;
+    text-decoration: none;
+    display: block;
+    text-align: right;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f8fafc;
+    color: var(--accent-blue) !important;
+}
+
+/* --- 4. محتوى الصفحة --- */
+.container {
+    width: 92%;
+    max-width: 1300px;
+    margin: 0 auto 50px;
+    padding: 0; 
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary-blue);
+    font-size: 28px;
+    font-weight: 800;
+    margin: 30px 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.section-box {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 35px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.search-bg { 
+    background: linear-gradient(to left, #ffffff, #fcfdfe);
+    border-right: 5px solid var(--accent-blue);
+}
+
+.section-title {
+    color: var(--primary-blue);
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 30px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title::after {
+    content: "";
+    flex-grow: 1;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+/* --- 5. شبكة الحقول (تم إضافة اللون الرمادي هنا فقط) --- */
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px 40px;
+    /* التعديل: تظليل منطقة الحقول بالرمادي */
+    background-color: #f8f9fa; 
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #4a5568;
+    margin-right: 5px;
+}
+
+.form-group input, .form-group select {
+    padding: 14px 18px;
+    border: 1px solid #cbd5e0;
+    border-radius: 10px;
+    font-family: 'Cairo';
+    font-size: 15px;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23800000' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center; /* السهم جهة اليسار لأن النص عربي */
+    padding-left: 35px;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #800000;
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+.form-group input[readonly] {
+    background-color: #f8fafc;
+    color: #718096;
+}
+
+/* --- 6. الأزرار --- */
+.search-area {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.btn-search {
+    background: #4a5568; 
+    color: white;
+    border: none;
+    padding: 0 35px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    height: 52px;
+}
+
+.btn-update {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 17px;
+}
+
+@media (max-width: 992px) {
+    .grid-layout { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .grid-layout { grid-template-columns: 1fr; }
+}
+
+/* --- التنسيقات المالية والجداول (إضافة لملف styles.css) --- */
+
+/* الشريط الذهبي الجانبي الخاص بالمالية */
+.financial-accent { 
+    border-right: 5px solid #ffc107 !important; 
+}
+
+/* زر الإصدار المالي باللون الذهبي */
+.btn-finance { 
+    background-color: #ffc107 !important; 
+    color: #002b55 !important; 
+    border: none;
+    font-weight: 800;
+}
+
+.btn-finance:hover { 
+    background-color: #e0a800 !important; 
+}
+
+/* تنسيق الجداول الموحد */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: var(--white); 
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table th { 
+    background-color: #fff8e1; /* تظليل الرأس باللون الذهبي الفاتح */
+    color: var(--text-dark); 
+    padding: 12px; 
+    border: 1px solid var(--border-color); 
+    font-size: 14px;
+}
+
+table td { 
+    padding: 12px; 
+    border: 1px solid var(--border-color); 
+    text-align: right; 
+    font-size: 14px;
+}
+
+/* أزرار العمليات داخل الجدول */
+.action-buttons { 
+    display: flex; 
+    gap: 8px; 
+    justify-content: center; 
+}
+
+.btn-edit { 
+    background-color: #17a2b8; 
+    color: white; 
+    border: none; 
+    padding: 6px 10px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+}
+
+.btn-delete { 
+    background-color: #dc3545; 
+    color: white; 
+    border: none; 
+    padding: 6px 10px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+}
+
+تنسيق السلايدر الموسط
+.hero-slider {
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.slide-content h1 { font-size: 40px; margin-bottom: 15px; font-weight: 800; }
+.slide-content p { font-size: 20px; opacity: 0.9; }
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.3);
+    color: white;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: 0.3s;
+}
+
+.slider-btn:hover { background: rgba(255, 0, 0, 0.6); }
+.next { left: 20px; }
+.prev { right: 20px; }
+
+
+.slider-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding-top: 20px;
+}
+
+.hero-slider {
+    position: relative;
+    width: 100%;
+    max-width: 1350px;
+    height: 600px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.slider-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* لضمان ملء الصورة للمساحة بشكل احترافي */
+}
+
+/* تنسيق النقاط السفلى */
+.slider-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 25;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: #ff0000;
+    width: 25px; /* تطويل النقطة النشطة بشكل جمالي */
+    border-radius: 10px;
+}
+
+/* --- Footer Styling --- */
+.main-footer {
+    background-color: #000000; /* الخلفية السوداء */
+    color: #ffffff;
+    padding: 60px 0 0 0;
+    font-family: 'Cairo', sans-serif;
+    direction: rtl; /* اتجاه عربي */
+}
+
+.footer-container {
+    max-width: 1250px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    padding: 0 30px 50px 30px;
+}
+
+.footer-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 30px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 2px;
+    background-color: #ff0000; /* الخط الأحمر تحت العنوان */
+}
+
+.footer-info, .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-info li {
+    font-size: 14px;
+    color: #cccccc;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links li a {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+.footer-links li a:hover {
+    color: #ff0000;
+    padding-right: 8px;
+}
+
+/* أيقونات التواصل الاجتماعي الحمراء المربعة */
+.footer-social {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.social-box {
+    width: 38px;
+    height: 38px;
+    background-color: #ff0000; /* اللون الأحمر المشرق */
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.social-box:hover {
+    transform: translateY(-5px);
+    background-color: #cc0000;
+}
+
+/* شريط الحقوق السفلي */
+.footer-bottom {
+    background-color: #111111;
+    border-top: 1px solid #222;
+    padding: 20px 0;
+}
+
+.bottom-container {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.copyright-text {
+    margin: 0;
+    font-size: 13px;
+    color: #777777;
+}
+
+/* زر الصعود للأعلى (السهم الأحمر) */
+.scroll-up-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.scroll-up-btn:hover {
+    background-color: #ffffff;
+    color: #ff0000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        text-align: center;
+    }
+    .footer-title::after {
+        right: 50%;
+        transform: translateX(50%);
+    }
+    .footer-social {
+        justify-content: center;
+    }
+    .bottom-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+
+/* تنسيق زر الخروج الخاص */
+.logout-btn {
+    background-color: rgba(255, 255, 255, 0.1); /* خلفية شفافة بسيطة */
+    color: #ffcccc !important; /* لون نص مائل للأحمر الباهت */
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    transition: 0.3s all ease;
+}
+
+.logout-btn:hover {
+    background-color: #ff0000 !important; /* يتحول للأحمر الكامل عند الماوس */
+    color: white !important;
+    border-color: #ff0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+
+
+/* --- تنسيقات صفحة تسجيل الدخول (الهوية العنابية المعتمدة) --- */
+
+.login-body {
+    /* تغيير الخلفية للون المطلوب مع تدرج بسيط ليعطي عمقاً للتصميم */
+    background: linear-gradient(135deg, #800000 0%, #4d0000 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.login-card {
+    background: var(--white);
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4); /* ظل أعمق ليبرز فوق الخلفية الداكنة */
+    text-align: center;
+}
+
+.login-card .logo-container {
+    margin-bottom: 25px;
+}
+
+.login-card h2 {
+    /* تغيير لون العنوان للون العنابي */
+    color: #800000;
+    font-weight: 800;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.login-form-group {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.login-form-group label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.login-form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-family: 'Cairo';
+    background: #f8fafc;
+    transition: 0.3s;
+}
+
+.login-form-group input:focus {
+    outline: none;
+    /* تغيير لون الإطار عند التركيز للعنابي */
+    border-color: #800000;
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    /* تغيير لون الزر الأساسي للعنابي */
+    background-color: #800000;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    /* لون أفتح قليلاً عند التأشير */
+    background-color: #a00000;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.login-footer-links {
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.login-footer-links a {
+    /* تغيير ألوان الروابط للعنابي */
+    color: #800000;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+
+
+/* ============================================================
+إضافات تقارير الشؤون (الأكاديمية والمالية) المتوافقة مع ستايلك
+   ============================================================ */
+
+/* صندوق الفلاتر العلوي في التقارير */
+/* --- 1. إصلاح شامل للحقول والـ SELECT --- */
+.form-group, .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* توحيد الـ Input والـ Select */
+
+select {
+    width: 100%;
+    height: 45px; /* ارتفاع ثابت للجميع */
+    padding: 0 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* --- إصلاح الـ SELECT تحديداً --- */
+select {
+    cursor: pointer;
+    -webkit-appearance: none; /* إزالة شكل المتصفح الافتراضي */
+    -moz-appearance: none;
+    appearance: none;
+    /* إضافة سهم عنابي مخصص */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23800000' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center; /* السهم جهة اليسار لأن النص عربي */
+    padding-left: 35px;
+}
+
+input:focus, select:focus {
+    border-color: #800000;
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+}
+
+/* --- 2. تنسيق حاوية التقارير (الكود الذي أرسلته مع إصلاحات) --- */
+.report-header-box {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    border-top: 5px solid #800000;
+    border-right: 1px solid var(--border-color);
+}
+
+.filter-row { 
+    display: flex; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+    align-items: flex-end; /* لضمان محاذاة الحقول مع الزر */
+}
+
+.filter-item { 
+    flex: 1; 
+    min-width: 180px; /* ضمان عدم صغر الحقل جداً */
+}
+
+/* --- 3. جداول التقارير الحديثة --- */
+.table-container { 
+    background: var(--white); 
+    border-radius: 16px; 
+    padding: 20px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    border: 1px solid var(--border-color);
+    overflow-x: auto; /* مهم جداً للجوال */
+}
+
+.modern-report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modern-report-table th {
+    background-color: #f8f9fa;
+    color: #800000;
+    padding: 15px;
+    text-align: right;
+    border-bottom: 2px solid #eee;
+    font-weight: 800;
+}
+
+.modern-report-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* --- الإصلاح النهائي والشامل للطباعة --- */
+@media print {
+    /* 1. إخفاء كل عناصر الموقع (الهيدر، الأزرار، القوائم) لكي لا تظهر كما في الصورة 3 */
+    .header, .nav-bar, .user-greeting, .logo-section, 
+    .scroll-up-btn, .btn-search, .logout-btn, .print-ignore, 
+    button, .btn-update, .btn-finance {
+        display: none !important;
+    }
+
+    /* 2. تنظيف جسم الصفحة وضمان الخلفية البيضاء */
+    body {
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* 3. إصلاح "لخبطة" الفلاتر (الصورة 2) */
+    .report-header-box {
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+        margin-bottom: 30px !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .filter-row {
+        display: flex !important;
+        flex-direction: row !important; /* ضمان بقائها بجانب بعضها */
+        justify-content: space-around !important;
+        border-bottom: 2px solid #000 !important;
+        padding-bottom: 10px !important;
+    }
+
+    .filter-item {
+        flex: 1 !important;
+        text-align: center !important;
+    }
+
+    /* إخفاء مربعات الاختيار وإظهار النص المختار فقط */
+    .filter-item select {
+        border: none !important;
+        font-weight: bold !important;
+        font-size: 14pt !important;
+        background: transparent !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        color: black !important;
+    }
+
+    /* 4. إصلاح الجدول ليكون رسمياً وبحدود سوداء واضحة */
+    .table-container {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    table {
+        width: 100% !important;
+        border: 1px solid #000 !important;
+        border-collapse: collapse !important;
+    }
+
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 10px !important;
+        color: black !important;
+        font-size: 12pt !important;
+        text-align: center !important;
+    }
+
+    th {
+        background-color: #eee !important; /* تظليل رمادي للرأس لتمييزه */
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* 5     إظهار الترويسة الرسمية في أعلى الورقة */
+    .print-only-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+}
+
+/* إخفاء ترويسة الطباعة أثناء التصفح العادي */
+.print-only-header { display: none; }

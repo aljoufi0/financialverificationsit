@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="slider-container">
+    <div class="hero-slider">
+        <div class="slides" id="slides">
+            {% for slide in slides %}
+            <div class="slide">
+                <img src="{{ slide.image.url }}" class="slider-image">
+            </div>
+            {% empty %}
+            <div class="slide">
+                <img src="{{ slide.image.url }}" class="slider-image">
+            </div>
+            {% endfor %}
+        </div> 
+        
+        <button class="slider-btn next" onclick="manualMove(1)">❮</button>
+        <button class="slider-btn prev" onclick="manualMove(-1)">❯</button>
+
+        <div class="slider-dots">
+            {% for slide in slides %}
+            <span class="dot {% if forloop.first %}active{% endif %}" onclick="currentSlide({{ forloop.index0 }})"></span>
+            {% endfor %}
+        </div>
+    </div> 
+</div> 
+
+<div class="main-content" style="padding: 20px; background: white;">
+    </div>
+
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-column">
+            <h3 class="footer-title">{{ college.name|default:"جامعة  " }}</h3>
+            <ul class="footer-info">
+                <li><span class="icon">📍</span> {{ settings.address|default:"اليمن - صنعاء" }}</li>
+                <li><span class="icon">📞</span> {{ settings.phone }}</li>
+                <li><a href="https://wa.me/{{ settings.whatsapp }}"><span class="icon">🟢</span> {{ settings.whatsapp }}</a></li>   
+                <li><span class="icon">📧</span> {{ settings.email }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="bottom-container">
+            <p class="copyright-text">{{ settings.copyright_text|default:"©" }}</p>
+            <button class="scroll-up-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+        </div>
+    </div>
+</footer>
+{% endblock %}

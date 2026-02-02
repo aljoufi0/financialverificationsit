@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" dir="rtl" style="font-family: 'Cairo', sans-serif; padding: 20px;">
+    
+    <div style="background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; border-top: 5px solid #004a99;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #004a99;">🔍 تقارير الشؤون الأكاديمية</h2>
+            <div style="color: #666; font-size: 14px;">تاريخ التقرير: {% now "Y-m-d" %}</div>
+        </div>
+
+        <form method="GET" id="reportForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;">
+                
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #444;">الدفعة</label>
+                    <select name="cohort" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                        <option value="">كل الدفعات</option>
+                        {% for c in cohorts %}
+                            <option value="{{ c.id }}" {% if request.GET.cohort == c.id|stringformat:"i" %}selected{% endif %}>{{ c.cohort_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #444;">التخصص</label>
+                    <select name="specialization" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                        <option value="">كل التخصصات</option>
+                        {% for s in specializations %}
+                            <option value="{{ s.id }}" {% if request.GET.specialization == s.id|stringformat:"i" %}selected{% endif %}>{{ s.specialization_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #444;">المستوى الدراسي</label>
+                    <select name="level" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; background-color: #f0f7ff;">
+                        <option value="">كل المستويات</option>
+                        {% for l in levels %}
+                            <option value="{{ l.id }}" {% if request.GET.level == l.id|stringformat:"i" %}selected{% endif %}>{{ l.level_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #444;">الفصل الدراسي</label>
+                    <select name="semester" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none;">
+                        <option value="">كل الفصول</option>
+                        {% for sem in semesters %}
+                            <option value="{{ sem.id }}" {% if request.GET.semester == sem.id|stringformat:"i" %}selected{% endif %}>{{ sem.semester_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; display: flex; gap: 15px; border-top: 1px solid #eee; pt: 20px;">
+                <button type="submit" style="background: #2d3748; color: white; padding: 10px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+                    🔄 تحديث البيانات
+                </button>
+                <button type="button" onclick="window.print()" style="background: #4a5568; color: white; padding: 10px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <span>🖨️</span> طباعة التقرير
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee;">
+        <table id="academicTable" style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead>
+                <tr style="background-color: #fdfae3; color: #856404; border-bottom: 2px solid #ffeeba;">
+                    <th style="padding: 15px;">الرقم الجامعي</th>
+                    <th style="padding: 15px;">اسم الطالب</th>
+                    <th style="padding: 15px;">التخصص</th>
+                    <th style="padding: 15px;">المستوى</th>
+                    <th style="padding: 15px;">الدفعة</th>
+                    <th style="padding: 15px;">الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom: 1px solid #f8f9fa; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fcfcfc'" onmouseout="this.style.backgroundColor='white'">
+                    <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: right;color: #2d3748;">{{ student.academic_number }}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: right;">{{ student.student_name }}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: right;">{{ student.specialization.specialization_name }}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: right;">{{ student.level.level_name }}</td>
+                    <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: right;">{{ student.cohort.cohort_name }}</td>
+                    <td style="padding: 15px;">
+    {% if student.has_fingerprint %}
+        <span style="background: #d4edda; color: #155724; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #c3e6cb;">
+            ✅ بصمة مسجلة
+        </span>
+    {% else %}
+        <span style="background: #f8d7da; color: #721c24; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; border: 1px solid #f5c6cb;">
+            ❌ غير مبصم
+        </span>
+    {% endif %}
+</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 50px; color: #a0aec0; font-style: italic; background: #fafafa;">
+                        لا توجد بيانات مطابقة لمعايير البحث المختارة
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="print-only" style="display: none; margin-top: 30px; text-align: center; border-top: 1px solid #ddd; padding-top: 20px;">
+        <p>تم استخراج هذا التقرير من النظام الأكاديمي الموحد</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        /* إخفاء القوائم العلوية وأزرار البحث عند الطباعة */
+        .navbar, .sidebar, form, .btn-update, .no-print {
+            display: none !important;
+        }
+        /* جعل محتوى التقرير يبدأ من أعلى الصفحة */
+        .container {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        table {
+            width: 100% !important;
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+{% endblock %}

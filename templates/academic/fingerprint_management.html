@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container" dir="rtl">
+        <div class="page-title">🛡️ نظام إدارة وربط البصمة الأكاديمي</div>
+
+
+        <div class="section-box search-bg">
+    <div class="section-title">🔍 خطوة 1: اختيار الطالب للربط</div>
+    <form method="GET" action="{% url 'fingerprint_management' %}" class="search-area">
+        <button type="submit" class="btn-search">جلب البيانات</button>
+        <div class="form-group" style="flex: 1; position: relative;">
+            <label for='academic_number_search'>الرقم الأكاديمي أو اسم الطالب</label>
+            <input type="text" name="search_query" 
+                value="{{ request.GET.search_query|default:'' }}" 
+                placeholder="ابدأ بكتابة الاسم أو الرقم لبدء الربط..." 
+                id='academic_number_search'
+                list="student_list"
+                autocomplete="off">
+            
+            <datalist id="student_list"></datalist>
+        </div>
+    </form>
+</div>
+
+        {% if student %}
+        <form method="POST" action="{% url 'fingerprint_management' %}" class="section-box">
+            {% csrf_token %}
+            <div class="section-title">📋 خطوة 2: تفاصيل سجل البصمة الجديد للطالب: {{ student.student_name }}</div>
+            
+            <div class="grid-layout">
+                <input type="hidden" name="academic_number" value="{{ student.academic_number }}">
+                
+                <div class="form-group">
+                    <label for='academic_number'>الرقم الاكاديمي (تلقائي)</label>
+                    <input type="text" value="{{ student.academic_number }}" readonly id='academic_number'>
+                </div>
+                <div class="form-group">
+                    <label for='Fingerprint ID'>معرف البصمة (Fingerprint ID)</label>
+                    <input type="number" name="fingerprint_id" placeholder="أدخل المعرف من جهاز البصمة" id='Fingerprint ID' required>
+                </div>
+                <div class="form-group">
+                    <label for='finger_index'>رقم الإصبع</label>
+                    <select name="finger_index" style="width: 100%; padding: 8px;" id='finger_index'>
+                        <option value="1">الإبهام الأيمن</option>
+                        <option value="2">السبابة الأيمن</option>
+                        <option value="3">الإبهام الأيسر</option>
+                        <option value="4">السبابة الأيسر</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for='fingerprint_template'>البصمة المشفرة (Hash)</label>
+                    <input type="text" name="fingerprint_template" value="TEMPLATE_DATA_SAMPLE" placeholder="تلقائي من الجهاز" id='fingerprint_template'>
+                </div>
+                <div class="form-group">
+                    <label for='fingerprint_quality'>جودة البصمة</label>
+                    <input type="number" name="fingerprint_quality" value="95" id='fingerprint_quality'>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button type="submit" class="btn-update" style="background-color: #2ecc71; flex: 1; border:none; color:white; padding:10px; cursor:pointer;">✅ إتمام عملية الربط</button>
+                <a href="{% url 'fingerprint_management' %}" class="btn-update" style="background-color: #e74c3c; flex: 1; text-align:center; text-decoration:none; color:white; padding:10px;">✖ إلغاء العملية</a>
+            </div>
+        </form>
+
+        <div class="section-box">
+            <div class="section-title">📜 البصمات المرتبطة حالياً بهذا الطالب</div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المعرف(ID)</th>
+                            <th>رقم الإصبع</th>
+                            <th>جودة البصمة</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fp in student.studentfingerprint_set.all %}
+                        <tr>
+                            <td>{{ fp.fingerprint_template }}</td>
+                            <td>{{ fp.get_finger_index_display|default:fp.finger_index }}</td>
+                            <td>{{ fp.fingerprint_quality }}%</td>
+                            <td>
+                                <a href="{% url 'delete_fingerprint' fp.id %}" 
+                                    class="btn-delete" 
+                                    onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا الربط؟')"
+                                    style="background:#e74c3c; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; display:inline-block;">
+                                    🗑️ حذف الربط
+            </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">لا توجد بصمات مرتبطة لهذا الطالب حالياً.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+
+    <script>
+    // تفعيل البحث الذكي عند الكتابة
+    document.getElementById('academic_number_search').addEventListener('input', function(e) {
+        const query = e.target.value;
+        if (query.length < 2) return; // يبدأ البحث بعد حرفين
+
+        // استدعاء نفس الـ API الموحد للبحث
+        fetch(`/academic/api/student-search/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const datalist = document.getElementById('student_list');
+                datalist.innerHTML = ''; // تنظيف القائمة السابقة
+                
+                data.results.forEach(student => {
+                    const option = document.createElement('option');
+                    // القيمة التي ستوضع في المربع عند الاختيار (الرقم الأكاديمي)
+                    option.value = student.id; 
+                    // النص التوضيحي (الاسم)
+                    option.label = student.text; 
+                    datalist.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching students:', error));
+    });
+
+    // تنسيق إخفاء الرسائل تلقائياً (إضافي)
+    setTimeout(function() {
+        let messages = document.querySelector('.messages-container');
+        if (messages) {
+            messages.style.transition = "opacity 0.6s ease";
+            messages.style.opacity = "0";
+            setTimeout(() => messages.remove(), 600);
+        }
+    }, 5000);
+</script>
+{% endblock %}

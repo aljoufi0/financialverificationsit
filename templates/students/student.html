@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<header class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+    
+    <div class="logo-section">
+        <span class="logo" style="font-size: 1.4rem; font-weight: bold;">
+            {{ college.name|default:"جامعة" }}
+        </span>
+    </div>
+
+    <div class="image-section">
+        {% if college.logo %}
+            <img src="{{ college.logo.url }}" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
+        {% else %}
+            <img src="{% static 'img/.jpg' %}" alt="Logo" style="height: 60px; width: auto; border-radius: 5px;">
+        {% endif %}
+    </div>
+</header>
+    <div class="app-frame">
+        <div class="super-top-bar">
+            <div>نظام {{ college.name|default:"جامعة" }}    | التحقق المالي</div>
+            <div>الطالب: {{ student.student_name|default:"يرجى إدخال الرقم الأكاديمي" }} </div>
+        </div>
+
+        <header class="integrated-header">
+            <div>
+                <p style="margin:0; font-size:0.8rem; color:#666;">الرقم الأكاديمي الحالي</p>
+                <div class="number-highlight">{{ student.academic_number|default:"---" }}</div>
+            </div>
+            <form method="GET" action="{% url 'student' %}" id="search-form" class="search-input-group">
+                <input type="text" 
+                    placeholder="بحث بالرقم او مرر الباركود" 
+                    id="academic_query" 
+                    name="academic_query" 
+                    value="{{ query|default:'' }}" 
+                    oninput="autoSubmit()"
+                    onfocus="this.select()"  
+                    autocomplete="off" 
+                    autofocus>
+                <button type="submit" class="btn-verify">تحقق</button>
+            </form>
+        </header>
+
+        {% if student %}
+        <div class="main-content-grid">
+            <aside class="profile-column">
+                <div class="data-card">
+                    <h3>👤 بيانات الهوية والتحقق</h3>
+                    <div class="image-status-wrapper">
+                        <div class="profile-picture">
+                            {% if student.profile_picture %}
+                                <img src="{{ student.profile_picture.url }}">
+                            {% else %}
+                                {% if student.gender == 'male' %}
+                                    <img src="{% static 'img/default_male.png' %}">
+                                {% else %}
+                                    <img src="{% static 'img/default_female.png' %}">
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="entry-status-icon" style="background: {% if permit_valid %}#27ae60{% else %}#c0392b{% endif %};">
+                            {% if permit_valid %}✓{% else %}✕{% endif %}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9rem; line-height: 1.8;">
+                        <p><strong>حالة الدخول:</strong> 
+                            <span style="color:{% if permit_valid %}#27ae60{% else %}#c0392b{% endif %}; font-weight:bold;">
+                                {% if permit_valid %}مسموح بالمرور{% else %}ممنوع (تصريح منتهي){% endif %}
+                            </span>
+                        </p>
+                        <p><strong>معرف الدفعة:</strong> {{ student.cohort|default:"2025" }}</p>
+                        <p><strong>طريقة التحقق:</strong> {{ student.get_verification_method_display }}</p>
+                        <p><strong>جودة البصمة:</strong> 95%</p>
+                        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
+    <p style="margin:0; font-size:0.8rem; color:#666; margin-bottom: 5px;">باركود التحقق</p>
+    {% if student.barcode_image %}
+        <img src="{{ student.barcode_image.url }}" alt="Barcode" style="width: 100%; max-width: 200px; height: auto;">
+    {% else %}
+        <p style="font-size: 0.7rem; color: #c0392b;">لم يتم توليد باركود</p>
+    {% endif %}
+</div>
+                    </div>
+                </div>
+            </aside>
+                
+            <main class="data-column">
+                <div class="data-card">
+                    <h3>🏛️ المعلومات الأكاديمية</h3>
+                    <div class="kpi-grid">
+                        <div class="kpi-card"><h4>الكلية</h4><h1>العلوم الإدارية والإنسانية</h1></div>
+                        <div class="kpi-card"><h4>التخصص</h4><h1>{{ student.specialization }}</h1></div>
+                        <div class="kpi-card"><h4>المستوى</h4><h1>{{ student.level }}</h1></div>
+                        <div class="kpi-card"><h4>الفصل</h4><h1>{{ student.semester }}</h1></div>
+                    </div>
+                </div>
+
+                <div class="data-card" style="margin-top:20px;">
+                    <h3>📄 سجل التصاريح الأكاديمية</h3>
+                    
+                    <div style="max-height: 250px; overflow-y: auto; overflow-x: auto; border: 1px solid #eee; border-radius: 8px; margin-top: 10px;">
+                        <table class="modern-table" style="width: 100%; border-collapse: collapse;">
+                            <thead style="position: sticky; top: 0; background: #f9f9f9; z-index: 1;">
+                                <tr>
+                                    <th>تاريخ الإصدار</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>البيان</th>
+                                    <th>الحالة</th>
+                                    <th>الأيام المتبقية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in all_permits %}
+                                <tr>
+                                    <td>{{ p.start_date }}</td>
+                                    <td>{{ p.end_date }}</td>
+                                    <td>{{ p.statement|default:"---" }}</td>
+                                    <td>
+                                        <span style="padding: 4px 12px; border-radius: 15px; font-weight: bold; 
+            background: {% if student.academic_status == 'active' %}#d4edda{% else %}#f8d7da{% endif %}; 
+            color: {% if student.academic_status == 'active' %}#155724{% else %}#721c24{% endif %};">
+            {{ student.get_academic_status_display }}
+        </span>
+                                    </td>
+                                    <td style="font-weight: bold; color: {% if p.days_left > 5 %}#27ae60{% elif p.days_left > 0 %}#f39c12{% else %}#c0392b{% endif %};">
+                                        {% if p.days_left > 0 %}
+                                            {{ p.days_left }} يوم
+                                        {% else %}
+                                            0 (منتهي)
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" style="text-align:center;">لا توجد تصاريح مسجلة لهذا الطالب</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+        {% elif query %}
+            <div style="text-align: center; margin-top: 50px; color: #666;">
+                <h3>⚠️ عذراً، لا يوجد طالب مسجل بالرقم الأكاديمي: {{ query }}</h3>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+    function autoSubmit() {
+        const input = document.getElementById('academic_query');
+        const form = document.getElementById('search-form');
+        
+        // إذا وصل الرقم للطول المطلوب (مثلاً 10 أرقام)
+        if (input.value.length >= 10) {
+            // إرسال النموذج
+            form.submit();
+            
+            // مسح الحقل بعد أجزاء من الثانية لضمان بقائه نظيفاً في المرة القادمة
+            setTimeout(() => {
+                input.value = '';
+            }, 100);
+        }
+    }
+
+    // كود لضمان أن الماوس دائماً داخل حقل البحث (مهماً ضغط المستخدم بالخارج)
+    document.addEventListener('click', function() {
+        document.getElementById('academic_query').focus();
+    });
+
+    window.onload = function() {
+        const input = document.getElementById('academic_query');
+        if (input) {
+            input.focus();
+            // تفريغ الحقل عند تحميل الصفحة ليكون جاهزاً للباركود الجديد
+            input.value = ''; 
+        }
+    };
+</script>
+{% endblock %}

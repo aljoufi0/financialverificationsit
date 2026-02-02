@@ -1,0 +1,66 @@
+{% load static %}
+
+<header class="header">
+    <div class="logo-section">
+        <span class="logo">{{ college.name|default:"جامعة" }}</span>
+    </div>
+
+    <div class="user-greeting">
+        {% if user.is_authenticated %}
+            مرحباً، {{ user.get_full_name|default:user.username }} 
+            <span class="branch-label" style="font-size: 0.8em; color: #ffeb3b; display: block;">
+                📍 الفرع: {{ user.profile.branch.name|default:"غير محدد" }}
+            </span>
+        {% else %}
+            مرحباً بك، زائر
+        {% endif %}
+    </div>
+
+    <div class="nav-bar">
+<div class="nav-item">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link logout-btn" style="background:none; border:none; color:white; cursor:pointer;">
+                🚪 خروج
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-link login-btn">
+            🔑 تسجيل الدخول
+        </a>
+        {% endif %}
+</div>
+
+        
+
+        <div class="nav-item {% if 'reports' in request.path %}active-link{% endif %}">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('reports-menu', event)">📊 التقارير ▾</a>
+            <div id="reports-menu" class="dropdown-content">
+                <a href="{% url 'academic_reports' %}">📜 تقارير أكاديمية</a>
+                <a href="{% url 'financial_reports' %}">💰 تقارير مالية</a>
+            </div>
+        </div>
+
+        <div class="nav-item {% if 'financial' in request.path %}active-link{% endif %}">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('fin-menu', event)">💵 الشؤون المالية ▾</a>
+            <div id="fin-menu" class="dropdown-content">
+                <a href="{% url 'financial_permits' %}">💰 إصدار تصاريح عامة</a>
+                <a href="{% url 'financial_permit' %}">👤 إصدار تصريح لطالب</a>
+            </div>
+        </div>
+
+        <div class="nav-item {% if 'student' in request.path or 'fingerprint' in request.path %}active-link{% endif %}">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('acad-menu', event)">🎓 الشؤون الأكاديمية ▾</a>
+            <div id="acad-menu" class="dropdown-content">
+                <a href="{% url 'student_search' %}">🔍 بحث وتعديل طالب</a>
+                <a href="{% url 'add_student' %}">➕ تسجيل طالب جديد</a>
+                <a href="{% url 'fingerprint_management' %}">🛡️ إدارة وربط البصمة</a>
+            </div>
+        </div>
+
+        <div class="nav-item {% if '/' == request.path %}active-link{% endif %}">
+            <a href="{% url 'index' %}" class="nav-link">🏠 الرئيسية</a>
+        </div>
+    </div>
+</header>
