@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.db.models import Q
 from students.models import  Specialization, Level, Semester
+from pages.models import UniversitySettings
 
 
 @login_required
@@ -17,11 +18,12 @@ def academic_reports(request):
     if not request.user.has_perm('students.can_view_academic_reports'):
         messages.error(request, "🛑 عذراً، ليس لديك صلاحية الوصول للتقارير الأكاديمية.")
         return redirect('index')
-
+    college = UniversitySettings.objects.first()
     context = {
         'specializations': Specialization.objects.all(),
         'semesters': Semester.objects.all(),
         'levels': Level.objects.all(),
+        'college': college,
     }
 
     # التحقق من وجود بصمة للطالب
@@ -35,7 +37,7 @@ def academic_reports(request):
     s_id = request.GET.get('specialization')
     sem_id = request.GET.get('semester')
     l_id = request.GET.get('level')
-
+    
     
     if s_id: students = students.filter(specialization_id=s_id)
     if sem_id: students = students.filter(semester_id=sem_id)
@@ -51,6 +53,7 @@ def academic_reports(request):
 
 
 def financial_reports(request):
+    college = UniversitySettings.objects.first()
     # الحارس: يمكننا ربطها بصلاحية مالية أو صلاحية العرض العام 
     # سنفترض وجود تطبيق اسمه 'finance' أو نستخدم صلاحية مخصصة
     if not request.user.has_perm('students.can_view_financial_reports'): # أو أي صلاحية تراها مناسبة للمالية
@@ -59,6 +62,7 @@ def financial_reports(request):
         
     # 1. جلب تاريخ اليوم للمقارنة مع تاريخ انتهاء التصريح
     today = timezone.now().date()
+    
 
     # 2. جلب قيم الفلترة من الرابط (URL Parameters)
     search_query = request.GET.get('search_name', '').strip()
@@ -112,7 +116,8 @@ def financial_reports(request):
         'specializations': Specialization.objects.all(),
         'levels': Level.objects.all(),
         'semesters': Semester.objects.all(),
-        'today': today,  # نرسله للقالب لتلوين الحالات برمجياً
+        'today': today,
+        'college': college, # نرسله للقالب لتلوين الحالات برمجياً
     }
     
     return render(request, 'reports/financial_reports.html', context)
