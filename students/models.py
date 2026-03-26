@@ -37,19 +37,9 @@ class Semester(models.Model):
         return self.semester_name
 
 
-class Cohort(models.Model):
-    cohort_name = models.CharField(
-        max_length=255, 
-        verbose_name="اسم الدفعة"
-    )
-
-    class Meta:
-        verbose_name = "دفعة"
-        verbose_name_plural = "الدفعات"
 
 
-    def __str__(self):
-        return self.cohort_name
+
     
 
 class Specialization(models.Model):
@@ -123,11 +113,6 @@ class Student(models.Model):
 
 
 
-    cohort = models.ForeignKey(
-        'Cohort', 
-        on_delete=models.PROTECT, 
-        verbose_name="معرف الدفعة"
-    ) 
 
 
     specialization = models.ForeignKey(
@@ -176,6 +161,10 @@ class Student(models.Model):
     class Meta:
         verbose_name = "طالب"
         verbose_name_plural = "الطلاب"
+        permissions = [
+            ("can_view_academic_reports", "يمكنه عرض التقارير الأكاديمية"),
+            ("can_view_financial_reports", "يمكنه عرض التقارير المالية"),
+        ]
     
 
     def __str__(self):

@@ -9,29 +9,44 @@
     <link rel="website icon"  type="png"    href="{% static 'img/3.png' %}">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <style>
-        /* كود لفك أي انكماش وضمان ظهور النص تحت النافبار */
-        body {
-            margin: 0;
-            padding: 0;
-            display: block !important; /* فك أي flex قديم مسبب للانكماش */
-            background-color: #f4f7f9;
+        <style>
+    /* 1. إعدادات الصفحة الأساسية */
+    body {
+        margin: 0;
+        padding: 0;
+        display: block !important;
+        background-color: #f4f7f9;
+        font-family: 'Cairo', sans-serif;
+    }
+    
+    main {
+        display: block !important;
+        width: 100% !important;
+        min-height: 80vh;
+        /* --- التعديل هنا: نلغي الـ padding الثابت --- */
+        padding-top: 70px; /* اجعلها نفس ارتفاع النافبار الأحمر بالضبط */
+        box-sizing: border-box;
+    }
+
+    /* أضف هذا الجزء خصيصاً للسلايدر ليلتصق بالأعلى */
+    .index-page main {
+        padding-top: 70px !important; 
+    }
+
+    /* للشاشات الصغيرة جداً (أقل من 480px) */
+    @media (max-width: 480px) {
+        main {
+            /* --- التعديل هنا: في الجوال النافبار أصغر، لذا نقلل المسافة --- */
+            padding-top: 60px !important; 
         }
         
-        main {
-            display: block !important;
-            width: 100% !important;
-            min-height: 80vh;
-            padding-top: 100px; /* هذه المسافة هي التي ستظهر النص المختفي "فوق" */
-            box-sizing: border-box;
+        /* إجبار السلايدر على إلغاء أي هوامش علوية */
+        .slider-fixed-container, .main-slider-wrapper {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
         }
-
-        .content-wrapper {
-            width: 95%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     {% if request.path != '/login/' and request.path != '/students/student' %}
@@ -43,7 +58,7 @@
     <div class="messages-container" style="padding: 10px; text-align: center;">
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
-                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; 
+                style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; 
                         {% if message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; {% else %} color: #155724; background-color: #d4edda; border-color: #c3e6cb; {% endif %}">
                 {{ message }}
             </div>

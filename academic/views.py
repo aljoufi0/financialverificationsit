@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from students.models import Student, Specialization, Cohort, Level, Semester, College
+from students.models import Student, Specialization, Level, Semester, College
 from pages.models import UniversitySettings
 from .models import StudentFingerprint
 from django.urls import reverse
@@ -31,7 +31,6 @@ def student_search(request):
     context = {
         'student': student,
         'specializations': Specialization.objects.all(),
-        'cohorts': Cohort.objects.all(),
         'levels': Level.objects.all(),
         'semesters': Semester.objects.all(),
         'college': college,
@@ -48,23 +47,18 @@ def update_student(request, academic_number):
     if request.method == 'POST':
         student = get_object_or_404(Student, academic_number=academic_number)
         try:
-            student.student_name = request.POST.get('student_name')
-            student.specialization_id = request.POST.get('specialization')
-            student.cohort_id = request.POST.get('cohort')
-            student.level_id = request.POST.get('level')
-            student.semester_id = request.POST.get('semester')
-            student.academic_status = request.POST.get('academic_status')
-            student.gender = request.POST.get('gender')
+            # نقوم بتحديث الصورة فقط إذا تم رفع ملف جديد
             if request.FILES.get('profile_picture'):
                 student.profile_picture = request.FILES.get('profile_picture')
+                student.save()
+                messages.success(request, f"✅ تم تحديث صورة الطالب {student.student_name} بنجاح.")
+            else:
+                messages.info(request, "ℹ️ لم يتم تغيير أي بيانات (لم يتم اختيار صورة جديدة).")
                 
-            student.save()
-            messages.success(request, f"✅ تم تحديث بيانات الطالب {student.student_name} بنجاح.")
         except Exception as e:
             messages.error(request, f"❌ خطأ في التحديث: {e}")
             
     return redirect(f'/academic/student/search/?search_query={academic_number}')
-
 # 3. دالة الإضافة (صلاحية الإضافة)
 @login_required
 def add_student(request):
@@ -72,14 +66,12 @@ def add_student(request):
         messages.error(request, "⚠️ تنبيه: ليس لديك صلاحية لتسجيل طلاب جدد.")
         return redirect('index')
 
-    college = UniversitySettings.objects.first()
     if request.method == 'POST':
         try:
             Student.objects.create(
                 academic_number=request.POST.get('academic_number'),
                 student_name=request.POST.get('student_name'),
                 specialization_id=request.POST.get('specialization'),
-                cohort_id=request.POST.get('cohort'),
                 level_id=request.POST.get('level'),
                 semester_id=request.POST.get('semester'),
                 academic_status=request.POST.get('academic_status'),
@@ -87,27 +79,28 @@ def add_student(request):
                 profile_picture=request.FILES.get('profile_picture'),
                 created_by=request.user
             )
-            messages.success(request, '✅ تم إضافة الطالب بنجاح إلى النظام.')
+            messages.success(request, '✅ تم إضافة الطالب بنجاح.')
+            return redirect('add_student')
         except Exception as e:
             messages.error(request, f'❌ حدث خطأ: {e}')
         
     context = {
         'specializations': Specialization.objects.all(),
-        'cohorts': Cohort.objects.all(),
         'levels': Level.objects.all(),
         'semesters': Semester.objects.all(),
-        'college': college,
+        'college': UniversitySettings.objects.first(),
     }
     return render(request, 'academic/add_student.html', context)
-
 # 4. إدارة البصمة (تسمح بالدخول للعرض للجميع، وتمنع الحفظ لغير المصرح لهم)
 @login_required
 def fingerprint_management(request):
-    # # السماح بالدخول لجميع الموظفين الذين لديهم صلاحية عرض الطلاب
-    # if not request.user.has_perm('students.view_student'):
-    #     messages.error(request, "🔒 قسم إدارة البصمة محظور لغير المصرح لهم.")
-    #     return redirect('index')
-
+    # 1. تفعيل الحماية (إزالة الـ # واستخدام صلاحية العرض)
+    # هذا السطر سيطرد أي طالب أو مستخدم ليس لديه صلاحية "عرض الطلاب"
+    if not request.user.has_perm('academic.view_studentfingerprint'):
+        messages.error(request, "🔒 قسم إدارة البصمة محظور لغير المصرح لهم.")
+        return redirect('index')
+    
+    # 2. بقية الكود سيعمل الآن فقط لمن لديه الصلاحية
     college = UniversitySettings.objects.first()
     student = None
     query = request.GET.get('search_query')
@@ -120,7 +113,8 @@ def fingerprint_management(request):
         
         if not student:
             messages.error(request, f"❌ عذراً، لم يتم العثور على أي طالب بالبيانات: ({query})")
-
+    
+    # ... كمل بقية الدالة (Return render) ...
     # حماية "عملية الحفظ" فقط
     if request.method == 'POST':
         if not request.user.has_perm('students.add_student'):
@@ -162,7 +156,7 @@ def delete_fingerprint(request, fp_id):
 # 6. API البحث
 @login_required
 def student_search_api(request):
-    if not request.user.has_perm('students.view_student'):
+    if not (request.user.has_perm('academic.view_studentfingerprint') or request.user.has_perm('academic.view_student')or request.user.has_perm('students.view_student')or request.user.has_perm('financials.view_permit')):
         return JsonResponse({'results': [], 'error': 'No permission'}, status=403)
     
     query = request.GET.get('q', '')

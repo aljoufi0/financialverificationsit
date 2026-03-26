@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
-from students.models import Student, Cohort, Specialization, Semester, Level, College
+from students.models import Student, Specialization, Semester, Level, College
 from .models import Permit
 from pages.models import UniversitySettings
 from django.utils import timezone
@@ -73,7 +73,6 @@ def financial_permits(request):
 
     college = UniversitySettings.objects.first()
     context = {
-        'cohorts': Cohort.objects.all(),
         'specializations': Specialization.objects.all(),
         'semesters': Semester.objects.all(),
         'levels': Level.objects.all(),
@@ -82,14 +81,13 @@ def financial_permits(request):
     }
 
     students = Student.objects.all()
-    c_id = request.GET.get('cohort')
     s_id = request.GET.get('specialization')
     sem_id = request.GET.get('semester')
     l_id = request.GET.get('level')
     col_id = request.GET.get('college')
     filter_date = request.GET.get('filter_date')
 
-    if c_id: students = students.filter(cohort_id=c_id)
+    
     if s_id: students = students.filter(specialization_id=s_id)
     if sem_id: students = students.filter(semester_id=sem_id)
     if l_id: students = students.filter(level_id=l_id)

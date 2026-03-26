@@ -30,8 +30,15 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+from import_export.formats import base_formats
 
+IMPORT_EXPORT_FORMATS = [
+    base_formats.XLSX,
+    base_formats.CSV,
+    base_formats.JSON,
+]
 INSTALLED_APPS = [
+    'import_export',
     'reports.apps.ReportsConfig',
     'login.apps.LoginConfig',
     'students.apps.StudentsConfig',

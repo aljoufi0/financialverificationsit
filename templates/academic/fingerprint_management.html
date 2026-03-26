@@ -1,143 +1,149 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<div class="container" dir="rtl">
-        <div class="page-title">🛡️ نظام إدارة وربط البصمة الأكاديمي</div>
-
-
-        <div class="section-box search-bg">
-    <div class="section-title">🔍 خطوة 1: اختيار الطالب للربط</div>
-    <form method="GET" action="{% url 'fingerprint_management' %}" class="search-area">
-        <button type="submit" class="btn-search">جلب البيانات</button>
-        <div class="form-group" style="flex: 1; position: relative;">
-            <label for='academic_number_search'>الرقم الأكاديمي أو اسم الطالب</label>
-            <input type="text" name="search_query" 
-                value="{{ request.GET.search_query|default:'' }}" 
-                placeholder="ابدأ بكتابة الاسم أو الرقم لبدء الربط..." 
-                id='academic_number_search'
-                list="student_list"
-                autocomplete="off">
-            
-            <datalist id="student_list"></datalist>
-        </div>
-    </form>
-</div>
-
-        {% if student %}
-        <form method="POST" action="{% url 'fingerprint_management' %}" class="section-box">
-            {% csrf_token %}
-            <div class="section-title">📋 خطوة 2: تفاصيل سجل البصمة الجديد للطالب: {{ student.student_name }}</div>
-            
-            <div class="grid-layout">
-                <input type="hidden" name="academic_number" value="{{ student.academic_number }}">
-                
-                <div class="form-group">
-                    <label for='academic_number'>الرقم الاكاديمي (تلقائي)</label>
-                    <input type="text" value="{{ student.academic_number }}" readonly id='academic_number'>
-                </div>
-                <div class="form-group">
-                    <label for='Fingerprint ID'>معرف البصمة (Fingerprint ID)</label>
-                    <input type="number" name="fingerprint_id" placeholder="أدخل المعرف من جهاز البصمة" id='Fingerprint ID' required>
-                </div>
-                <div class="form-group">
-                    <label for='finger_index'>رقم الإصبع</label>
-                    <select name="finger_index" style="width: 100%; padding: 8px;" id='finger_index'>
-                        <option value="1">الإبهام الأيمن</option>
-                        <option value="2">السبابة الأيمن</option>
-                        <option value="3">الإبهام الأيسر</option>
-                        <option value="4">السبابة الأيسر</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for='fingerprint_template'>البصمة المشفرة (Hash)</label>
-                    <input type="text" name="fingerprint_template" value="TEMPLATE_DATA_SAMPLE" placeholder="تلقائي من الجهاز" id='fingerprint_template'>
-                </div>
-                <div class="form-group">
-                    <label for='fingerprint_quality'>جودة البصمة</label>
-                    <input type="number" name="fingerprint_quality" value="95" id='fingerprint_quality'>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px; display: flex; gap: 15px;">
-                <button type="submit" class="btn-update" style="background-color: #2ecc71; flex: 1; border:none; color:white; padding:10px; cursor:pointer;">✅ إتمام عملية الربط</button>
-                <a href="{% url 'fingerprint_management' %}" class="btn-update" style="background-color: #e74c3c; flex: 1; text-align:center; text-decoration:none; color:white; padding:10px;">✖ إلغاء العملية</a>
-            </div>
-        </form>
-
-        <div class="section-box">
-            <div class="section-title">📜 البصمات المرتبطة حالياً بهذا الطالب</div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>المعرف(ID)</th>
-                            <th>رقم الإصبع</th>
-                            <th>جودة البصمة</th>
-                            <th>الإجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fp in student.studentfingerprint_set.all %}
-                        <tr>
-                            <td>{{ fp.fingerprint_template }}</td>
-                            <td>{{ fp.get_finger_index_display|default:fp.finger_index }}</td>
-                            <td>{{ fp.fingerprint_quality }}%</td>
-                            <td>
-                                <a href="{% url 'delete_fingerprint' fp.id %}" 
-                                    class="btn-delete" 
-                                    onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا الربط؟')"
-                                    style="background:#e74c3c; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; display:inline-block;">
-                                    🗑️ حذف الربط
-            </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" style="text-align: center;">لا توجد بصمات مرتبطة لهذا الطالب حالياً.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
+<div class="container" style="direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px;">
+    
+    <div style="margin-bottom: 30px; border-right: 5px solid #800000; padding-right: 15px;">
+        <h2 style="margin: 0; color: #800000; font-weight: bold;">🛡️ نظام إدارة وربط البصمة الأكاديمي</h2>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">يمكنك البحث عن الطالب ثم إدخال بيانات البصمة من الجهاز مباشرة.</p>
     </div>
 
+    <div class="report-header-box" style="background: white; padding: 25px; border: 1px solid #e0e0e0; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px;">
+        <div style="border-bottom: 2px solid #800000; padding-bottom: 12px; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #800000; font-weight: bold; font-size: 1.1em;">🔍 خطوة 1: اختيار الطالب للربط</h3>
+        </div>
 
-    <script>
-    // تفعيل البحث الذكي عند الكتابة
+        <form method="GET" action="{% url 'fingerprint_management' %}" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 2; min-width: 300px; position: relative;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9em; color: #333;">الرقم الأكاديمي أو اسم الطالب:</label>
+                <input type="text" name="search_query" 
+                    value="{{ request.GET.search_query|default:'' }}" 
+                    placeholder="ابدأ بكتابة الاسم أو الرقم لبدء الربط..." 
+                    id='academic_number_search'
+                    list="student_list"
+                    autocomplete="off"
+                    style="width: 100%; height: 48px; border-radius: 10px; border: 2px solid #800000; padding: 0 15px; outline: none; box-sizing: border-box; font-size: 1em;">
+                <datalist id="student_list"></datalist>
+            </div>
+            <button type="submit" style="background: #2d3748; color: white; border: none; padding: 0 35px; height: 48px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 8px;">
+                جلب البيانات 🔄
+            </button>
+        </form>
+    </div>
+
+    {% if student %}
+    <form method="POST" action="{% url 'fingerprint_management' %}" style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px;">
+        {% csrf_token %}
+        <div style="border-bottom: 2px solid #2ecc71; padding-bottom: 12px; margin-bottom: 25px;">
+            <h3 style="margin: 0; color: #27ae60; font-weight: bold; font-size: 1.1em;">📋 خطوة 2: تفاصيل سجل البصمة للطالب: <span style="color: #2d3748;">{{ student.student_name }}</span></h3>
+        </div>
+        
+        <input type="hidden" name="academic_number" value="{{ student.academic_number }}">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 20px;">
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; color: #444;">الرقم الأكاديمي (تلقائي)</label>
+                <input type="text" value="{{ student.academic_number }}" readonly style="width: 100%; height: 45px; background: #f4f4f4; border: 1px solid #ccc; border-radius: 8px; padding: 0 15px; font-weight: bold; color: #666;">
+            </div>
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; color: #444;">معرف البصمة من الجهاز (Fingerprint ID)</label>
+                <input type="number" name="fingerprint_id" placeholder="أدخل المعرف المكتوب في الجهاز" required style="width: 100%; height: 45px; border: 2px solid #800000; border-radius: 8px; padding: 0 15px; outline: none; font-size: 1em;">
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; color: #444;">اختر رقم الإصبع</label>
+                <select name="finger_index" style="width: 100%; height: 45px; border: 2px solid #800000; border-radius: 8px; background: white; padding: 0 10px; cursor: pointer; font-size: 1em;">
+                    <option value="1">الإبهام الأيمن</option>
+                    <option value="2">السبابة الأيمن</option>
+                    <option value="3">الإبهام الأيسر</option>
+                    <option value="4">السبابة الأيسر</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; color: #444;">جودة البصمة المقبولة %</label>
+                <input type="number" name="fingerprint_quality" value="95" style="width: 100%; height: 45px; border: 2px solid #800000; border-radius: 8px; padding: 0 15px; font-size: 1em;">
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 25px;">
+            <a href="{% url 'fingerprint_management' %}" style="background: #edf2f7; color: #4a5568; text-decoration: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; transition: 0.3s; display: flex; align-items: center;">إلغاء العملية</a>
+            <button type="submit" style="background: #27ae60; color: white; border: none; padding: 12px 45px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1em; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.25); transition: 0.3s;">
+                ✅ إتمام عملية الربط بنجاح
+            </button>
+        </div>
+    </form>
+
+    <div style="background: white; border-radius: 15px; overflow: hidden; border: 1px solid #800000; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div style="background: #800000; color: white; padding: 15px 25px; font-weight: bold; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center;">
+            <span>📜 البصمات المرتبطة حالياً بهذا الطالب</span>
+            <span style="font-size: 0.8em; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px;">إجمالي: {{ student.studentfingerprint_set.count }}</span>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #800000;">
+                <tr>
+                    <th style="padding: 18px; border: 1px solid #eee;">معرف البصمة (Template)</th>
+                    <th style="padding: 18px; border: 1px solid #eee;">رقم الإصبع</th>
+                    <th style="padding: 18px; border: 1px solid #eee;">جودة البصمة</th>
+                    <th style="padding: 18px; border: 1px solid #eee;">الإجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fp in student.studentfingerprint_set.all %}
+                <tr style="border-bottom: 1px solid #eee; transition: 0.2s;" onmouseover="this.style.backgroundColor='#fffcfc'">
+                    <td style="padding: 15px; font-family: 'Courier New', monospace; color: #555;">{{ fp.fingerprint_template|truncatechars:30 }}</td>
+                    <td style="padding: 15px; font-weight: bold;">{{ fp.get_finger_index_display|default:fp.finger_index }}</td>
+                    <td style="padding: 15px;">
+                        <span style="background: #e6fffa; color: #236363; padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 1px solid #b2f5ea; font-size: 0.9em;">
+                            {{ fp.fingerprint_quality }}%
+                        </span>
+                    </td>
+                    <td style="padding: 15px;">
+                        <a href="{% url 'delete_fingerprint' fp.id %}" 
+                        onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا الربط؟ لا يمكن التراجع.')"
+                        style="background:#fff5f5; color:#e53e3e; padding:8px 18px; border-radius:8px; text-decoration:none; font-weight:bold; border: 1px solid #feb2b2; display:inline-block; font-size: 0.9em; transition: 0.3s;">
+                        🗑️ حذف الربط
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 50px; color: #a0aec0; font-style: italic;">لا توجد بصمات مسجلة لهذا الطالب في قاعدة البيانات حالياً.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // نظام البحث الذكي (API)
     document.getElementById('academic_number_search').addEventListener('input', function(e) {
         const query = e.target.value;
-        if (query.length < 2) return; // يبدأ البحث بعد حرفين
-
-        // استدعاء نفس الـ API الموحد للبحث
+        if (query.length < 2) return;
         fetch(`/academic/api/student-search/?q=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
                 const datalist = document.getElementById('student_list');
-                datalist.innerHTML = ''; // تنظيف القائمة السابقة
-                
+                datalist.innerHTML = ''; 
                 data.results.forEach(student => {
                     const option = document.createElement('option');
-                    // القيمة التي ستوضع في المربع عند الاختيار (الرقم الأكاديمي)
                     option.value = student.id; 
-                    // النص التوضيحي (الاسم)
                     option.label = student.text; 
                     datalist.appendChild(option);
                 });
-            })
-            .catch(error => console.error('Error fetching students:', error));
+            });
     });
 
-    // تنسيق إخفاء الرسائل تلقائياً (إضافي)
-    setTimeout(function() {
-        let messages = document.querySelector('.messages-container');
-        if (messages) {
-            messages.style.transition = "opacity 0.6s ease";
-            messages.style.opacity = "0";
-            setTimeout(() => messages.remove(), 600);
-        }
-    }, 5000);
+    // تحسين تجربة المستخدم للأزرار
+    document.querySelectorAll('button, a').forEach(elem => {
+        elem.style.transition = "all 0.2s ease";
+        elem.onmouseover = () => elem.style.opacity = "0.8";
+        elem.onmouseout = () => elem.style.opacity = "1";
+    });
 </script>
 {% endblock %}

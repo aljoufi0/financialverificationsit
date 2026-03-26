@@ -1,8 +1,118 @@
 {% load static %}
 
+<style>
+    /* 1. إعدادات الهيدر الأساسية (الكمبيوتر) */
+    .header {
+        display: flex;
+        flex-direction: row; /* تم التغيير ليصبح اللوجو يمين والروابط يسار */
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2%;
+        background-color: #800000;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 70px; 
+        z-index: 2000;
+        box-sizing: border-box;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .nav-bar {
+        display: flex;
+        flex-direction: row; /* تم التغيير هنا أيضاً لترتيب الروابط */
+        gap: 8px;
+        align-items: center;
+    }
+
+    .nav-item {
+        position: relative;
+        white-space: nowrap;
+    }
+
+    .nav-link {
+        color: white !important;
+        text-decoration: none;
+        font-size: 0.95rem;
+        padding: 8px 12px;
+        cursor: pointer;
+        display: inline-block;
+        transition: 0.3s;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        border-radius: 5px;
+    }
+
+    /* 2. القائمة المنسدلة (Dropdown) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0; /* تم التغيير لليسار لأن القائمة في جهة اليسار الآن */
+        background-color: white;
+        min-width: 180px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        z-index: 3000;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .dropdown-content a {
+        color: #333 !important;
+        padding: 12px 15px;
+        text-decoration: none;
+        display: block;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+        color: #800000 !important;
+    }
+
+    /* 📱 3. التعديل السحري للجوال */
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: row !important; 
+            height: 65px !important;
+            padding: 0 8px;
+        }
+
+        .logo-section {
+            max-width: 40%;
+        }
+
+        .logo {
+            font-size: 0.85rem !important;
+            line-height: 1.2;
+            display: block;
+        }
+
+        .nav-bar {
+            gap: 2px !important;
+            justify-content: flex-end !important;
+        }
+
+        .nav-link {
+            font-size: 0.7rem !important;
+            padding: 4px 5px !important;
+        }
+
+        .user-greeting {
+            display: none;
+        }
+    }
+</style>
+
 <header class="header">
     <div class="logo-section">
-        <span class="logo">{{ college.name|default:"جامعة" }}</span>
+        <span class="logo" style="font-weight: 900; font-size: 1.2rem;">{{ college.name|default:"جامعة  " }}</span>
     </div>
 
     <div class="user-greeting">
@@ -17,6 +127,36 @@
     </div>
 
     <div class="nav-bar">
+        <div class="nav-item">
+            <a href="{% url 'index' %}" class="nav-link">🏠 الرئيسية</a>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('acad-menu', event)">🎓 الأكاديمية ▾</a>
+            <div id="acad-menu" class="dropdown-content">
+                <a href="{% url 'student_search' %}">🔍 بحث وتعديل</a>
+                <a href="{% url 'add_student' %}">➕ تسجيل طالب</a>
+                <a href="{% url 'fingerprint_management' %}">🛡️ إدارة البصمة</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('fin-menu', event)">💵 المالية ▾</a>
+            <div id="fin-menu" class="dropdown-content">
+                <a href="{% url 'financial_permits' %}">💰 تصاريح عامة</a>
+                <a href="{% url 'financial_permit' %}">👤 تصريح طالب</a>
+            </div>
+        </div>
+
+        <div class="nav-item">
+            <a class="nav-link drop-trigger" onclick="toggleMenu('reports-menu', event)">📊 التقارير ▾</a>
+            <div id="reports-menu" class="dropdown-content">
+                <a href="{% url 'academic_reports' %}">📜 تقارير أكاديمية</a>
+                <a href="{% url 'financial_reports' %}">💰 تقارير مالية</a>
+            </div>
+        </div>
+
+        <div class="nav-bar">
 <div class="nav-item">
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="post" style="display: inline;">
@@ -33,34 +173,24 @@
 </div>
 
         
-
-        <div class="nav-item {% if 'reports' in request.path %}active-link{% endif %}">
-            <a class="nav-link drop-trigger" onclick="toggleMenu('reports-menu', event)">📊 التقارير ▾</a>
-            <div id="reports-menu" class="dropdown-content">
-                <a href="{% url 'academic_reports' %}">📜 تقارير أكاديمية</a>
-                <a href="{% url 'financial_reports' %}">💰 تقارير مالية</a>
-            </div>
-        </div>
-
-        <div class="nav-item {% if 'financial' in request.path %}active-link{% endif %}">
-            <a class="nav-link drop-trigger" onclick="toggleMenu('fin-menu', event)">💵 الشؤون المالية ▾</a>
-            <div id="fin-menu" class="dropdown-content">
-                <a href="{% url 'financial_permits' %}">💰 إصدار تصاريح عامة</a>
-                <a href="{% url 'financial_permit' %}">👤 إصدار تصريح لطالب</a>
-            </div>
-        </div>
-
-        <div class="nav-item {% if 'student' in request.path or 'fingerprint' in request.path %}active-link{% endif %}">
-            <a class="nav-link drop-trigger" onclick="toggleMenu('acad-menu', event)">🎓 الشؤون الأكاديمية ▾</a>
-            <div id="acad-menu" class="dropdown-content">
-                <a href="{% url 'student_search' %}">🔍 بحث وتعديل طالب</a>
-                <a href="{% url 'add_student' %}">➕ تسجيل طالب جديد</a>
-                <a href="{% url 'fingerprint_management' %}">🛡️ إدارة وربط البصمة</a>
-            </div>
-        </div>
-
-        <div class="nav-item {% if '/' == request.path %}active-link{% endif %}">
-            <a href="{% url 'index' %}" class="nav-link">🏠 الرئيسية</a>
-        </div>
-    </div>
 </header>
+
+<script>
+    function toggleMenu(menuId, event) {
+        event.stopPropagation();
+        document.querySelectorAll('.dropdown-content').forEach(m => {
+            if (m.id !== menuId) m.style.display = 'none';
+        });
+        
+        const menu = document.getElementById(menuId);
+        if (menu.style.display === 'block') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'block';
+        }
+    }
+    
+    window.onclick = function() {
+        document.querySelectorAll('.dropdown-content').forEach(m => m.style.display = 'none');
+    }
+</script>

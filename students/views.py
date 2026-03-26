@@ -22,7 +22,7 @@ def students(request):
         if query.isdigit():
             # إذا كان أرقاماً، نبحث كالمعتاد
             student = Student.objects.filter(academic_number=query).select_related(
-                'specialization', 'level', 'semester', 'cohort'
+                'specialization', 'level', 'semester',
             ).first()
             
             if student:

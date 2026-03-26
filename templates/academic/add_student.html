@@ -1,99 +1,136 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<div class="container">
-    
-    
-    <div class="page-title">➕ تسجيل طالب جديد في النظام</div>
+<style>
+    /* تحسينات عامة للتجاوب والشبكة */
+    .student-grid {
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 25px 50px; /* مسافات مريحة بين الحقول تماماً كالصفحة السابقة */
+    }
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %} <div class="section-box">
-            <div class="section-title">📝 البيانات الأكاديمية والشخصية</div>
+    /* المقاس المعتمد للحقول (قليل الصغر) */
+    .custom-input {
+        width: 100%;
+        max-width: 450px; 
+        height: 46px; 
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        outline: none;
+        font-size: 1em;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .custom-input:focus {
+        border-color: #800000;
+        box-shadow: 0 0 5px rgba(128, 0, 0, 0.1);
+    }
+
+    /* تنسيق العناصر داخل الشبكة */
+    .grid-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* تنسيق خاص للجوال */
+    @media (max-width: 768px) {
+        .student-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+        .custom-input {
+            max-width: 100%; /* العودة للعرض الكامل في الجوال */
+        }
+    }
+</style>
+
+<div class="container" style="direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; max-width: 1100px; margin: auto;">
+    
+    <div style="margin-bottom: 25px; border-right: 5px solid #800000; padding-right: 15px;">
+        <h2 style="margin: 0; color: #800000; font-weight: bold;">➕ تسجيل طالب جديد</h2>
+        <p style="margin: 5px 0; color: #666; font-size: 0.9em;">يرجى تعبئة كافة الحقول المطلوبة بالأسفل.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" 
+        style="background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 8px solid #800000;">
+        {% csrf_token %}
+        
+        <div class="student-grid">
             
-            <div class="grid-layout">
-                <div class="form-group">
-                    <label>الرقم الأكاديمي</label>
-                    <input type="number" name="academic_number" placeholder="مثلاً: 20261001" required>
-                </div>
-
-                <div class="form-group">
-                    <label>اسم الطالب الرباعي</label>
-                    <input type="text" name="student_name" placeholder="أدخل الاسم الكامل" required>
-                </div>
-
-                <div class="form-group">
-                    <label>التخصص الدراسي</label>
-                    <select name="specialization" style="width: 100%; padding: 8px;">
-                        {% for spec in specializations %}
-                            <option value="{{ spec.id }}">{{ spec.specialization_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>الدفعة</label>
-                    <select name="cohort" style="width: 100%; padding: 8px;">
-                        {% for c in cohorts %}
-                            <option value="{{ c.id }}">{{ c.cohort_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>المستوى الدراسي</label>
-                    <select name="level" style="width: 100%; padding: 8px;">
-                        {% for l in levels %}
-                            <option value="{{ l.id }}">{{ l.level_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>الفصل الدراسي</label>
-                    <select name="semester" style="width: 100%; padding: 8px;">
-                        {% for s in semesters %}
-                            <option value="{{ s.id }}">{{ s.semester_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>الجنس</label>
-                    <select name="gender" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ced4da;">
-                        <option value="male" {% if student.gender == 'male' %}selected{% endif %}>ذكر</option>
-                        <option value="female" {% if student.gender == 'female' %}selected{% endif %}>أنثى</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>الحالة الأكاديمية</label>
-                    <select name="academic_status" style="width: 100%; padding: 8px;">
-                        <option value="active">نشط</option>
-                        <option value="suspended">موقف</option>
-                        <option value="graduated">خريج</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>صورة الطالب</label>
-                    <input type="file" name="profile_picture" style="padding: 8px;">
-                </div>
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">الرقم الأكاديمي *</label>
+                <input type="number" name="academic_number" required placeholder="مثلاً: 20221005"
+                    class="custom-input" style="border-right: 4px solid #800000;">
             </div>
 
-            <button type="submit" class="btn-update" style="background-color: #27ae60; margin-top: 30px; cursor: pointer;">
-                ✅ حفظ وتسجيل الطالب
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">اسم الطالب الرباعي *</label>
+                <input type="text" name="student_name" required placeholder="أدخل الاسم الرباعي"
+                    class="custom-input" style="border-right: 4px solid #800000;">
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">التخصص الدراسي</label>
+                <select name="specialization" class="custom-input">
+                    {% for spec in specializations %}
+                        <option value="{{ spec.id }}">{{ spec.specialization_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">المستوى الدراسي</label>
+                <select name="level" class="custom-input">
+                    {% for l in levels %}
+                        <option value="{{ l.id }}">{{ l.level_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">الفصل الدراسي</label>
+                <select name="semester" class="custom-input">
+                    {% for s in semesters %}
+                        <option value="{{ s.id }}">{{ s.semester_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">الحالة الأكاديمية</label>
+                <select name="academic_status" class="custom-input">
+                    <option value="active">نشط (مستمر)</option>
+                    <option value="suspended">موقف</option>
+                    <option value="graduated">خريج</option>
+                </select>
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #444; margin-bottom: 8px;">الجنس</label>
+                <select name="gender" class="custom-input">
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+
+            <div class="grid-item">
+                <label style="font-weight: bold; color: #27ae60; margin-bottom: 8px;">الصورة الشخصية</label>
+                <div class="custom-input" style="display: flex; align-items: center; background: #f0fff4; border: 2px dashed #27ae60; padding: 0 10px;">
+                    <input type="file" name="profile_picture" accept="image/*" style="font-size: 0.85em; width: 100%;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 25px;">
+            <button type="submit" style="width: 100%; max-width: 450px; margin: auto; display: block; padding: 16px; background: #27ae60; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1em; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2); transition: 0.3s;">
+                ✅ حفظ بيانات الطالب الجديد
             </button>
         </div>
     </form>
 </div>
-<script>
-    setTimeout(function() {
-    let container = document.querySelector('.messages-container');
-    if (container) {
-        container.style.transition = "opacity 0.6s ease";
-        container.style.opacity = "0";
-        setTimeout(() => container.remove(), 600);
-    }
-}, 5000);
-</script>
 {% endblock %}

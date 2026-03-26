@@ -2,31 +2,118 @@
 {% load static %}
 
 {% block content %}
-<div class="slider-container">
-    <div class="hero-slider">
-        <div class="slides" id="slides">
-            {% for slide in slides %}
-            <div class="slide">
-                <img src="{{ slide.image.url }}" class="slider-image">
-            </div>
-            {% empty %}
-            <div class="slide">
-                <img src="{{ slide.image.url }}" class="slider-image">
-            </div>
-            {% endfor %}
-        </div> 
+
+<style>
+    /* 1. تصفير الحاوية */
+    .slider-fixed-container {
+        width: 100% !important;
+        position: relative;
+        background: #fff;
+        margin: 0 !important;
+        padding: 0 !important;
+        /* هذا السطر سيجعل الحاوية تتقلص في الجوال */
+        height: 450px; 
+    }
+
+    .hero-view {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .my-slide {
+        display: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    .my-slide img {
+        width: 100% !important;
+        height: 100% !important;
+        /* 'cover' سيجعل الصورة تملأ كل الفراغ الأبيض المزعج */
+        object-fit: cover !important; 
+        display: block;
+    }
+
+    /* 2. وضع الأزرار في المنتصف الحقيقي */
+    .nav-btn {
+        position: absolute;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: rgba(128, 0, 0, 0.7); /* لون عنابي */
+        color: white;
+        border: none;
+        padding: 15px;
+        cursor: pointer;
+        z-index: 100;
+        font-size: 20px;
+        border-radius: 5px;
+    }
+    .btn-left { left: 10px; }
+    .btn-right { right: 10px; }
+
+    /* 📱 تعديل الجوال "القسري" لملء الشاشة */
+    @media (max-width: 768px) {
+        .slider-fixed-container {
+            /* هنا نقوم بتصغير الحاوية إجبارياً لمنع الفراغ تحتها */
+            height: 200px !important; 
+            margin-top: -10px !important;
+        }
         
-        <button class="slider-btn next" onclick="manualMove(1)">❮</button>
-        <button class="slider-btn prev" onclick="manualMove(-1)">❯</button>
+        .my-slide img {
+            /* إجبار الصورة على ملء الـ 200 بكسل بالكامل */
+            object-fit: cover !important; 
+        }
 
-        <div class="slider-dots">
-            {% for slide in slides %}
-            <span class="dot {% if forloop.first %}active{% endif %}" onclick="currentSlide({{ forloop.index0 }})"></span>
-            {% endfor %}
+        .nav-btn {
+            padding: 8px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="slider-fixed-container">
+    <div class="hero-view">
+        {% for slide in slides %}
+        <div class="my-slide">
+            <img src="{{ slide.image.url }}">
         </div>
-    </div> 
-</div> 
+        {% empty %}
+        <div class="my-slide" style="display:block;">
+            <img src="{% static 'images/default.jpg' %}">
+        </div>
+        {% endfor %}
 
+        <button class="nav-btn btn-left" onclick="changeSlide(-1)">❮</button>
+        <button class="nav-btn btn-right" onclick="changeSlide(1)">❯</button>
+    </div>
+</div>
+
+<script>
+    // تأكد من وجود هذا السكريبت البسيط في الأسفل
+    let sIndex = 0;
+    const slidesList = document.getElementsByClassName("my-slide");
+    
+    function showCurrentSlide() {
+        if (slidesList.length === 0) return;
+        for (let i = 0; i < slidesList.length; i++) {
+            slidesList[i].style.display = "none";
+        }
+        if (sIndex >= slidesList.length) sIndex = 0;
+        if (sIndex < 0) sIndex = slidesList.length - 1;
+        slidesList[sIndex].style.display = "block";
+    }
+
+    function changeSlide(n) {
+        sIndex += n;
+        showCurrentSlide();
+    }
+
+    showCurrentSlide();
+    // تقليب تلقائي
+    setInterval(() => changeSlide(1), 5000);
+</script>
 <div class="main-content" style="padding: 20px; background: white;">
     </div>
 

@@ -2,74 +2,157 @@
 {% load static %}
 
 {% block content %}
- <div class="container">
-        <div class="print-only-header">
-            <h1>جامعة العلوم الحديثة</h1>
-            <h2>تقرير المبالغ المستحقة والمدفوعة</h2>
-            <p>تاريخ التقرير: <span id="p-date"></span></p>
-            <hr>
-        </div>
-
-        <div class="report-header-box print-ignore">
-            <h3 style="margin-top:0; color:#800000;">🔍 فلاتر التقرير المالي</h3>
-            <div class="filter-row">
-                <div class="filter-item">
-                    <label>الفترة الزمنية</label>
-                    <select>
-                        <option>الكل</option>
-                        <option>اليوم</option>
-                        <option>هذا الشهر</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <label>حالة الدفع</label>
-                    <select>
-                        <option>الكل</option>
-                        <option>مسدد بالكامل</option>
-                        <option>متبقي عليه مبالغ</option>
-                    </select>
-                </div>
-                <div class="filter-item" style="flex: 0.5;">
-                    <button class="btn-update" style="width:100%; height:45px; background:#2d3748; color:white; border:none; border-radius:10px; cursor:pointer;">تحديث البيانات</button>
-                </div>
-                <div class="filter-item" style="flex: 0.5;">
-                    <button onclick="doPrint()" style="width:100%; height:45px; background:#800000; color:white; border:none; border-radius:10px; cursor:pointer;">📄 طباعة التقرير</button>
-                </div>
+<div class="container" style="direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, sans-serif;">
+    
+    <div class="print-header" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #800000; padding-bottom: 10px; margin-bottom: 20px;">
+            <div style="text-align: center; flex: 1;">
+                <h2 style="margin: 0; color: #800000;"> {{ college.name|default:"جامعة  " }} </h2>
+                <h4 style="margin: 5px 0;">شؤون الطلاب</h4>
+                <h4 style="margin: 0;">نظام الرقابة الإلكتروني</h4>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <img src="{% static 'images/logo.png' %}" alt="شعار الجامعة" style="height: 100px; width: auto;">
+            </div>
+            <div style="text-align: center; flex: 1; font-size: 0.9em;">
+                <p style="margin: 5px 0;">تاريخ التقرير: {{ today|date:"Y-m-d" }}</p>
+                <p style="margin: 5px 0;">بواسطة: {{ request.user.get_full_name|default:request.user.username }}</p>
             </div>
         </div>
-
-        <div class="table-container">
-            <table class="modern-report-table">
-                <thead>
-                    <tr>
-                        <th>الرقم الجامعي</th>
-                        <th>اسم الطالب</th>
-                        <th>إجمالي الرسوم</th>
-                        <th>المبلغ المدفوع</th>
-                        <th>المبلغ المتبقي</th>
-                        <th>الحالة</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>202211001</td>
-                        <td>أحمد عبدالله السقاف</td>
-                        <td>$1,200</td>
-                        <td>$800</td>
-                        <td style="color: red; font-weight: bold;">$400</td>
-                        <td><span style="background:#fff3cd; padding:4px 8px; border-radius:5px;">جزئي</span></td>
-                    </tr>
-                    <tr>
-                        <td>202211055</td>
-                        <td>محمد علي الجوفي</td>
-                        <td>$1,200</td>
-                        <td>$1,200</td>
-                        <td style="color: green;">$0</td>
-                        <td><span style="background:#d4edda; padding:4px 8px; border-radius:5px;">خالص</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <h3 style="text-align: center; text-decoration: underline; margin-bottom: 30px;">تقرير حالات تصاريح الطلاب المالية</h3>
     </div>
 
+    <div class="report-header-box print-ignore" style="background: white; padding: 25px; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px;">
+        <div style="border-bottom: 2px solid #800000; padding-bottom: 12px; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #800000; font-weight: bold; font-size: 1.2em;">🔍تقرير حالات تصاريح الطالب المالية
+</h3>
+        </div>
+
+        <form method="GET" action="">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9em; color: #333;">بحث عن طالب:</label>
+                <input type="text" name="search_name" value="{{ request.GET.search_name|default:'' }}" placeholder="اكتب اسم الطالب أو رقمه الجامعي هنا..." 
+                    style="width: 100%; height: 45px; border-radius: 8px; border: 2px solid #800000; padding: 0 15px; outline: none; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 25px;">
+                <div style="flex: 2; min-width: 200px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.85em; color: #555;">التخصص:</label>
+                    <select name="specialization" style="width: 100%; height: 40px; border-radius: 8px; border: 2px solid #800000; background: white;">
+                        <option value="">كل التخصصات</option>
+                        {% for spec in specializations %}
+                        <option value="{{ spec.id }}" {% if request.GET.specialization == spec.id|stringformat:"i" %}selected{% endif %}>{{ spec.specialization_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.85em; color: #555;">المستوى:</label>
+                    <select name="level" style="width: 100%; height: 40px; border-radius: 8px; border: 2px solid #800000; background: white;">
+                        <option value="">الكل</option>
+                        {% for lvl in levels %}
+                        <option value="{{ lvl.id }}" {% if request.GET.level == lvl.id|stringformat:"i" %}selected{% endif %}>{{ lvl.level_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.85em; color: #555;">الفصل:</label>
+                    <select name="semester" style="width: 100%; height: 40px; border-radius: 8px; border: 2px solid #800000; background: white;">
+                        <option value="">الكل</option>
+                        {% for sem in semesters %}
+                        <option value="{{ sem.id }}" {% if request.GET.semester == sem.id|stringformat:"i" %}selected{% endif %}>{{ sem.semester_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="flex: 1; min-width: 150px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.85em; color: #555;">حالة التصريح:</label>
+                    <select name="permit_status" style="width: 100%; height: 40px; border-radius: 8px; border: 2px solid #800000; background: #fffaf0; font-weight: bold;">
+                        <option value="all" {% if request.GET.permit_status == 'all' or not request.GET.permit_status %}selected{% endif %}>كل الحالات</option>
+                        <option value="active" {% if request.GET.permit_status == 'active' %}selected{% endif %} style="color: green;">✅ فعال فقط</option>
+                        <option value="expired" {% if request.GET.permit_status == 'expired' %}selected{% endif %} style="color: red;">❌ منتهي الصلاحية</option>
+                        <option value="no_permit" {% if request.GET.permit_status == 'no_permit' %}selected{% endif %} style="color: orange;">⚠️ بدون تصريح</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 20px;">
+                <button type="submit" style="background: #2d3748; color: white; border: none; padding: 0 30px; height: 42px; border-radius: 8px; cursor: pointer; font-weight: bold;">تحديث القائمة 🔄</button>
+                <button type="button" onclick="window.print()" style="background: #800000; color: white; border: none; padding: 0 30px; height: 42px; border-radius: 8px; cursor: pointer; font-weight: bold;">📄 طباعة التقرير</button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #800000;">
+        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead style="background-color: #800000; color: white;">
+                <tr>
+                    <th style="padding: 15px; border: 1px solid #fff; width: 15%;">الرقم الأكاديمي</th>
+                    <th style="padding: 15px; border: 1px solid #fff; text-align: right; width: 30%;">اسم الطالب</th>
+                    <th style="padding: 15px; border: 1px solid #fff; width: 20%;">التخصص والمستوى</th>
+                    <th style="padding: 15px; border: 1px solid #fff; width: 15%;">حالة التصريح</th>
+                    <th style="padding: 15px; border: 1px solid #fff; width: 20%;">تاريخ انتهاء التصريح</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 12px; font-weight: bold;">{{ student.academic_number }}</td>
+                    <td style="padding: 12px; text-align: right; padding-right: 20px;">{{ student.student_name }}</td>
+                    <td style="padding: 12px;">{{ student.specialization.specialization_name }} - {{ student.level.level_name }}</td>
+                    
+                    <td style="padding: 12px;">
+                        {% with permit=student.permit_set.last %}
+                            {% if permit %}
+                                {% if permit.is_active and permit.end_date >= today %}
+                                    <span style="color: green; font-weight: bold;">● فعال</span>
+                                {% else %}
+                                    <span style="color: red; font-weight: bold;">● منتهي</span>
+                                {% endif %}
+                            {% else %}
+                                <span style="background-color: #fff5f5; color: #e53e3e; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; border: 1px solid #feb2b2;">
+                                    ⚠️ لا يوجد
+                                </span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+
+                    <td style="padding: 12px; font-weight: bold; font-family: monospace;">
+                        {% with permit=student.permit_set.last %}
+                            {% if permit %}
+                                <span style="{% if permit.is_active and permit.end_date >= today %}color: green;{% else %}color: red;{% endif %}">
+                                    {{ permit.end_date|date:"Y-m-d" }}
+                                </span>
+                            {% else %}
+                                <span style="color: #ccc;">---</span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="padding: 30px; color: #888;">لا توجد نتائج مطابقة لخيارات البحث الحالية</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="print-footer" style="display: none; margin-top: 50px;">
+        <div style="display: flex; justify-content: space-between; text-align: center;">
+            <div style="flex: 1;"><p style="font-weight: bold;">ختم الكلية</p><div style="height: 60px;"></div><p>................</p></div>
+            <div style="flex: 1;"><p style="font-weight: bold;">المراجعة</p><div style="height: 60px;"></div><p>................</p></div>
+            <div style="flex: 1;"><p style="font-weight: bold;">عميد الطلاب</p><div style="height: 60px;"></div><p>................</p></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media screen { .print-header, .print-footer { display: none !important; } }
+    @media print {
+        @page { size: A4 landscape; margin: 10mm; }
+        .print-ignore { display: none !important; }
+        .print-header, .print-footer { display: block !important; }
+        table { border: 2px solid #000 !important; width: 100% !important; border-collapse: collapse !important; }
+        th { background: #f2f2f2 !important; color: #000 !important; border: 1px solid #000 !important; padding: 10px !important; font-size: 14px; }
+        td { border: 1px solid #000 !important; padding: 8px !important; color: #000 !important; font-size: 13px; }
+    }
+</style>
 {% endblock %}
