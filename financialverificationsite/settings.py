@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-%96m0iw=w%27@xnv(49$7ow+u3w(u5%=%yo1u+qj7==!+egd^u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mohammedAljoufi123.pythonanywhere.com']
 
 
 # Application definition
@@ -86,18 +86,18 @@ WSGI_APPLICATION = 'financialverificationsite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':'financialverificationsitedb',
-        'USER':'postgres',
-        'PASSWORD':'123456',
-        'HOST':'localhost',
-        'PORT':'5432',
+        'NAME': 'financialverificationsitedb',
+        'USER': 'postgres',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
-    
-    }
-    
+}
+
 
 
 
